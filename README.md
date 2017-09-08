@@ -1,2 +1,11 @@
-# DMR-Renderer
-A Damn Small Renderer using OpenGL 3+ and C++
+# Aruco
+
+ - TODO
+
+## Dependencies
+
+ - Opencv 2.4+
+ - ROS
+ 	- cv-bridge
+
+
