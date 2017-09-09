@@ -10,10 +10,10 @@
  - API documentation can be generated using Doxygen
 
 ### Dependencies
-
  - Opencv 2.4.9+
  	- Previous versions of opencv 2 might cause problems.
- - ROS
+ - CMake
+ - ROS (indigo and later)
  	- cv-bridge
 
 ### License
