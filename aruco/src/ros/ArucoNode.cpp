@@ -391,7 +391,7 @@ void stringToDoubleArray(string data, double* values, unsigned int count, string
  * The coordinate system used by OpenCV uses Z+ to represent depth, Y- for height and X+ for lateral, but for the node the coordinate system used is diferent X+ for depth, Z+ for height and Y- for lateral movement.
  * The coordinates are converted on input and on output, its possible to force the OpenCV coordinate system by setting the use_opencv_coords param to true.
  *   
- *        WiiGo Robot     |          OpenCV
+ *           Robot        |          OpenCV
  *    Z+                  |    Y- 
  *    |                   |    |
  *    |    X+             |    |    Z+

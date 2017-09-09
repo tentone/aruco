@@ -2,9 +2,9 @@
 <package>
 	<name>aruco</name>
 	<version>1.0.0</version>
-	<description>The aruco package</description>
-	<maintainer email="joseferrao@followinspiration.pt">tentone</maintainer>
-	<license>NONE</license>
+	<description>The aruco package can be used to detect, track and calculate pose from aruco markers.</description>
+	<maintainer email="tentone@outlook.pt">tentone</maintainer>
+	<license>MIT</license>
 
 	<build_depend>message_generation</build_depend>
 	<run_depend>message_runtime</run_depend>
