@@ -26,8 +26,8 @@
  	 		- When set opencv coordinates are used, otherwise wiigo coords are used (X+ depth, Z+ height, Y+ lateral)
  	 		- Default false
  	 	- cosine_limit
- 	 		- Cosine limit used during the quad detection phase. By default 0.8 is used. The bigger the value more distortion tolerant the square detection will be.
- 	 		- Default 0.7
+ 	 		- Cosine limit used during the quad detection phase. The bigger the value more distortion tolerant the square detection will be.
+ 	 		- Default 0.8
  	 	- theshold_block_size
  	 		- Adaptive theshold base block size.
  	 		- Default 9
