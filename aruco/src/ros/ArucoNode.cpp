@@ -14,7 +14,7 @@
 #include "std_msgs/Int32.h"
 
 #include "geometry_msgs/Point.h"
-#include "geometry_msgs/Pose.h"
+#include "geometry_msgs/PoseStamped.h"
 #include "sensor_msgs/image_encodings.h"
 
 #include "image_transport/image_transport.h"
@@ -66,6 +66,11 @@ ros::Publisher pub_rotation;
  * ROS node pose publisher.
  */
 ros::Publisher pub_pose;
+
+/**
+ * Pose publisher sequence counter.
+ */
+int pub_pose_seq = 0;
 
 /**
  * Flag to check if calibration parameters were received.
@@ -216,10 +221,17 @@ void onFrame(const sensor_msgs::ImageConstPtr& msg)
 			pub_rotation.publish(message_rotation);
 
 			//Publish pose
-			geometry_msgs::Pose message_pose;
-			message_pose.position.x = message_position.x;
-			message_pose.position.y = message_position.y;
-			message_pose.position.z = message_position.z;
+			geometry_msgs::PoseStamped message_pose;
+
+			//Header
+			message_pose.header.frame_id = "aruco";
+			message_pose.header.seq = pub_pose_seq++;
+			message_pose.header.stamp = ros::Time::now();
+
+			//Position
+			message_pose.pose.position.x = message_position.x;
+			message_pose.pose.position.y = message_position.y;
+			message_pose.pose.position.z = message_position.z;
 
 			//Convert to quaternion
 			double x = message_rotation.x;
@@ -231,18 +243,18 @@ void onFrame(const sensor_msgs::ImageConstPtr& msg)
 
 			if(angle > 0.0)
 			{
-				message_pose.orientation.x = x * sin(angle/2.0)/angle;
-				message_pose.orientation.y = y * sin(angle/2.0)/angle;
-				message_pose.orientation.z = z * sin(angle/2.0)/angle;
-				message_pose.orientation.w = cos(angle/2.0);
+				message_pose.pose.orientation.x = x * sin(angle/2.0)/angle;
+				message_pose.pose.orientation.y = y * sin(angle/2.0)/angle;
+				message_pose.pose.orientation.z = z * sin(angle/2.0)/angle;
+				message_pose.pose.orientation.w = cos(angle/2.0);
 			}
 			//To avoid illegal expressions
 			else
 			{
-				message_pose.orientation.x = 0.0;
-				message_pose.orientation.y = 0.0;
-				message_pose.orientation.z = 0.0;
-				message_pose.orientation.w = 1.0;
+				message_pose.pose.orientation.x = 0.0;
+				message_pose.pose.orientation.y = 0.0;
+				message_pose.pose.orientation.z = 0.0;
+				message_pose.pose.orientation.w = 1.0;
 			}
 
 			
@@ -537,7 +549,7 @@ int main(int argc, char **argv)
 	pub_visible = global.advertise<std_msgs::Bool>(project + node.getNamespace() + topic_visible, 10);
 	pub_position = global.advertise<geometry_msgs::Point>(project + node.getNamespace() + topic_position, 10);
 	pub_rotation = global.advertise<geometry_msgs::Point>(project + node.getNamespace() + topic_rotation, 10);
-	pub_pose = global.advertise<geometry_msgs::Pose>(project + node.getNamespace() + topic_pose, 10);
+	pub_pose = global.advertise<geometry_msgs::PoseStamped>(project + node.getNamespace() + topic_pose, 10);
 
 	//Subscribe topics
 	image_transport::ImageTransport it(global);
