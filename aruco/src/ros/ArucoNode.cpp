@@ -220,10 +220,33 @@ void onFrame(const sensor_msgs::ImageConstPtr& msg)
 			message_pose.position.x = message_position.x;
 			message_pose.position.y = message_position.y;
 			message_pose.position.z = message_position.z;
-			message_pose.orientation.x = message_rotation.x;
-			message_pose.orientation.y = message_rotation.y;
-			message_pose.orientation.z = message_rotation.z;
-			message_pose.orientation.w = 1;
+
+			//Convert to quaternion
+			double x = message_rotation.x;
+			double y = message_rotation.y;
+			double z = message_rotation.z;
+
+			//Module of angular velocity
+			double angle = sqrt(x*x + y*y + z*z);
+
+			if(angle > 0.0)
+			{
+				message_pose.orientation.x = x * sin(angle/2.0)/angle;
+				message_pose.orientation.y = y * sin(angle/2.0)/angle;
+				message_pose.orientation.z = z * sin(angle/2.0)/angle;
+				message_pose.orientation.w = cos(angle/2.0);
+			}
+			//To avoid illegal expressions
+			else
+			{
+				message_pose.orientation.x = 0.0;
+				message_pose.orientation.y = 0.0;
+				message_pose.orientation.z = 0.0;
+				message_pose.orientation.w = 1.0;
+			}
+
+			
+			
 			pub_pose.publish(message_pose);
 
 			//Debug
