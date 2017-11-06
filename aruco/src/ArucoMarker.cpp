@@ -181,7 +181,7 @@ class ArucoMarker
 		}
 
 		/**
-		 * Calculates the sum of the hamming distance for this marker.
+		 * Calculates the sum of the hamming distance (number of diferent bits) for this marker relative to the ids matrix used to validate the aruco markers.
 		 */
 		int hammingDistance()
 		{

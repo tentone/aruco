@@ -79,7 +79,7 @@ int pub_pose_seq = 0;
 bool calibrated;
 
 /**
- * Flag to determine if opencv or robot coordinates are used.
+ * Flag to determine if OpenCV or ROS coordinates are used.
  */
 bool use_opencv_coords;
 
@@ -100,9 +100,21 @@ float cosine_limit;
 
 /**
  * Adaptive theshold pre processing block size.
- * By default 9 is used.
  */
 int theshold_block_size;
+
+/**
+ * Minimum threshold block size.
+ * By default 5 is used.
+ */
+int theshold_block_size_min;
+
+
+/**
+ * Maximum threshold block size.
+ * By default 9 is used.
+ */
+int theshold_block_size_max;
 
 /**
  * Minimum area considered for aruco markers.
@@ -143,6 +155,16 @@ void onFrame(const sensor_msgs::ImageConstPtr& msg)
 		//Vector of points
 		vector<Point2f> projected;
 		vector<Point3f> world;
+
+		if(markers.size() == 0)
+		{
+			theshold_block_size += 2;
+
+			if(theshold_block_size > theshold_block_size_max)
+			{
+				theshold_block_size = theshold_block_size_min;
+			}
+		}
 
 		//Check known markers and build known of points
 		for(unsigned int i = 0; i < markers.size(); i++)
@@ -256,8 +278,6 @@ void onFrame(const sensor_msgs::ImageConstPtr& msg)
 				message_pose.pose.orientation.z = 0.0;
 				message_pose.pose.orientation.w = 1.0;
 			}
-
-			
 			
 			pub_pose.publish(message_pose);
 
@@ -426,7 +446,7 @@ void stringToDoubleArray(string data, double* values, unsigned int count, string
  * The coordinate system used by OpenCV uses Z+ to represent depth, Y- for height and X+ for lateral, but for the node the coordinate system used is diferent X+ for depth, Z+ for height and Y- for lateral movement.
  * The coordinates are converted on input and on output, its possible to force the OpenCV coordinate system by setting the use_opencv_coords param to true.
  *   
- *           Robot        |          OpenCV
+ *           ROS          |          OpenCV
  *    Z+                  |    Y- 
  *    |                   |    |
  *    |    X+             |    |    Z+
@@ -456,9 +476,17 @@ int main(int argc, char **argv)
 	node.param<bool>("debug", debug, false);
 	node.param<bool>("use_opencv_coords", use_opencv_coords, false);
 	node.param<float>("cosine_limit", cosine_limit, 0.8);
-	node.param<int>("theshold_block_size", theshold_block_size, 9);
+	node.param<int>("theshold_block_size_min", theshold_block_size_min, 3);
+	node.param<int>("theshold_block_size_max", theshold_block_size_max, 21);
 	node.param<int>("min_area", min_area, 100);
 	node.param<bool>("calibrated", calibrated, true);
+
+	//Initial threshold block size
+	theshold_block_size = (theshold_block_size_min + theshold_block_size_max) / 2;
+	if(theshold_block_size % 2 == 0)
+	{
+		theshold_block_size++;
+	}
 
 	//Initialize calibration matrices
 	calibration = Mat(3, 3, CV_64F, data_calibration);

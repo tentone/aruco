@@ -41,6 +41,8 @@ class ArucoDetector
 			//Adaptive threshold
 			adaptiveThreshold(gray, gray, 255, THRESH_BINARY, ADAPTIVE_THRESH_MEAN_C, thresholdBlockSize, 0.0);
 
+			//imshow("Adaptive", gray);
+
 			//Get quads
 			vector<Quadrilateral> quads = SquareFinder::findSquares(gray, limitCosine, minArea);
 			
@@ -52,6 +54,8 @@ class ArucoDetector
 			{
 				Mat board = deformQuad(frame, Point2i(49, 49), quads[i].points);
 				Mat binary = processArucoImage(board);
+
+				//imshow("Board", board);
 
 				//Process aruco image and get data
 				ArucoMarker marker = readArucoData(binary);
@@ -65,6 +69,8 @@ class ArucoDetector
 						markers.push_back(marker);
 					}
 				}
+
+				//imshow("Binary", binary);
 			}
 
 			return markers;
