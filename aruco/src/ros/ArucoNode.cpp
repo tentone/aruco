@@ -465,12 +465,8 @@ int main(int argc, char **argv)
 	ros::init(argc, argv, "aruco");
 
 	//Private and global node instances
-	ros::NodeHandle node("~");
+	ros::NodeHandle node("aruco");
 	ros::NodeHandle global;
-
-	//Global parameters
-	string project;
-	global.param<string>("project", project, "wgi");
 	
 	//Parameters
 	node.param<bool>("debug", debug, false);
@@ -574,10 +570,10 @@ int main(int argc, char **argv)
 	node.param<string>("topic_pose", topic_pose, "/pose");
 
 	//Advertise topics
-	pub_visible = global.advertise<std_msgs::Bool>(project + node.getNamespace() + topic_visible, 10);
-	pub_position = global.advertise<geometry_msgs::Point>(project + node.getNamespace() + topic_position, 10);
-	pub_rotation = global.advertise<geometry_msgs::Point>(project + node.getNamespace() + topic_rotation, 10);
-	pub_pose = global.advertise<geometry_msgs::PoseStamped>(project + node.getNamespace() + topic_pose, 10);
+	pub_visible = global.advertise<std_msgs::Bool>(node.getNamespace() + topic_visible, 10);
+	pub_position = global.advertise<geometry_msgs::Point>(node.getNamespace() + topic_position, 10);
+	pub_rotation = global.advertise<geometry_msgs::Point>(node.getNamespace() + topic_rotation, 10);
+	pub_pose = global.advertise<geometry_msgs::PoseStamped>(node.getNamespace() + topic_pose, 10);
 
 	//Subscribe topics
 	image_transport::ImageTransport it(global);
