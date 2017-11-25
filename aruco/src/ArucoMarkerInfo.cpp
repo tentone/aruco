@@ -1,3 +1,5 @@
+#pragma once
+
 #include <string>
 #include <iostream>
 #include <math.h>
@@ -5,9 +7,6 @@
 #include <opencv2/core/core.hpp>
 
 #include "math/Transformations.cpp"
-
-#ifndef ARUCO_MARKER_INFO_CPP
-#define ARUCO_MARKER_INFO_CPP
 
 using namespace cv;
 using namespace std;
@@ -141,5 +140,3 @@ class ArucoMarkerInfo
 			cout << "}" << endl;
 		}
 };
-
-#endif

@@ -1,12 +1,11 @@
+#pragma once
+
 #include <iostream>
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 
 #include "Triangle.cpp"
-
-#ifndef QUADRILATERAL_CPP
-#define QUADRILATERAL_CPP
 
 using namespace cv;
 using namespace std;
@@ -129,5 +128,3 @@ class Quadrilateral
 			}
 		}
 };
-
-#endif

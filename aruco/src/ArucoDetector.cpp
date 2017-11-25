@@ -1,3 +1,5 @@
+#pragma once
+
 #include <string>
 #include <iostream>
 #include <math.h>
@@ -11,8 +13,7 @@
 #include "ArucoMarker.cpp"
 #include "ArucoMarkerInfo.cpp"
 
-#ifndef ARUCO_DETECTOR_CPP
-#define ARUCO_DETECTOR_CPP
+#define DEBUG false
 
 using namespace cv;
 using namespace std;
@@ -32,7 +33,7 @@ class ArucoDetector
 		 * @param gray Grayscale image.
 		 * @param box Box size to refine corner.
 		 */
-		static Point2f refineCorner(Point corner, Mat gray, int box)
+		static Point2f refineCornerSobel(Point corner, Mat gray, int box)
 		{
 			Rect roi = Rect(corner.x - box / 2, corner.y - box / 2, box, box);
 			
@@ -64,11 +65,12 @@ class ArucoDetector
 				}
 			}
 
-			Mat debug = gray(roi).clone();
-			circle(debug, Point(box / 2, box / 2), 1, Scalar(0, 0, 255), -1);
-			circle(debug, Point(x, y), 1, Scalar(0, 255, 0), -1);
-			imshow("Corner", debug);
-			imshow("Sobel", sobel);
+			#if DEBUG == true
+				Mat debug = gray(roi).clone();
+				circle(debug, Point(x, y), 1, Scalar(0, 255, 0), -1);
+				imshow("Corner", debug);
+				imshow("Sobel", sobel);
+			#endif
 
 			return Point2f(corner.x + x - box / 2 , corner.y + y - box / 2);
 		}
@@ -84,12 +86,14 @@ class ArucoDetector
 			//Create a grayscale image
 			Mat gray;
 			cvtColor(frame, gray, COLOR_BGR2GRAY);
-			//imshow("Gray", gray);
 
 			//Adaptive threshold
 			Mat thresh;
 			adaptiveThreshold(gray, thresh, 255, THRESH_BINARY, ADAPTIVE_THRESH_MEAN_C, thresholdBlockSize, 0.0);
-			//imshow("Adaptive", thresh);
+
+			#if DEBUG == true
+				imshow("Adaptive", thresh);
+			#endif
 
 			//Get quads
 			vector<Quadrilateral> quads = SquareFinder::findSquares(thresh, limitCosine, minArea);
@@ -111,11 +115,11 @@ class ArucoDetector
 				//Check if marker is valid
 				if(marker.validate())
 				{
+					#if DEBUG == true
+						imshow("Board", board);
+					#endif
 					markers.push_back(marker);
-					//imshow("Board", board);
 				}
-
-				//imshow("Binary", binary);
 			}
 
 			return markers;
@@ -376,5 +380,3 @@ class ArucoDetector
 			return out;
 		}
 };
-
-#endif

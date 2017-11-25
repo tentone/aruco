@@ -1,7 +1,6 @@
-#include "math/Quadrilateral.cpp"
+#pragma once
 
-#ifndef SQUARE_FINDER_CPP
-#define SQUARE_FINDER_CPP
+#include "math/Quadrilateral.cpp"
 
 using namespace cv;
 using namespace std;
@@ -84,5 +83,3 @@ class SquareFinder
 			return (dx1*dx2 + dy1*dy2) / sqrt((dx1*dx1 + dy1*dy1)*(dx2*dx2 + dy2*dy2) + 1e-12);
 		}
 };
-
-#endif

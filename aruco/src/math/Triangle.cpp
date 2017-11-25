@@ -1,10 +1,9 @@
+#pragma once
+
 #include <iostream>
 #include <math.h>
 
 #include <opencv2/core/core.hpp>
-
-#ifndef TRIANGLE_CPP
-#define TRIANGLE_CPP
 
 using namespace cv;
 
@@ -87,5 +86,3 @@ class Triangle
 			return (a.x - c.x) * (b.y - c.y) - (b.x - c.x) * (a.y - c.y);
 		}
 };
-
-#endif

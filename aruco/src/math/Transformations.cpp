@@ -1,11 +1,9 @@
+#pragma once
+
 #include <iostream>
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
-
-
-#ifndef TRANSFORMATION_CPP
-#define TRANSFORMATION_CPP
 
 using namespace cv;
 using namespace std;
@@ -43,5 +41,3 @@ class Transformations
 			return  rz * ry * rx;
 		}
 };
-
-#endif
