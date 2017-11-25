@@ -26,6 +26,54 @@ class ArucoDetector
 {	
 	public:
 		/**
+		 * Refine corner position using a grayscale version of the captured image (without threshold).
+		 * This method uses the sobel operator and assumes that only one corner is visible, if the box size is too large corners from the marker migth be visible.
+		 * @param corner Initial corner position in the image.
+		 * @param gray Grayscale image.
+		 * @param box Box size to refine corner.
+		 */
+		static Point2f refineCorner(Point corner, Mat gray, int box)
+		{
+			Rect roi = Rect(corner.x - box / 2, corner.y - box / 2, box, box);
+			
+			if(roi.x < 0) roi.x = 0;
+			if(roi.y < 0) roi.y = 0;
+			if(roi.x + box > gray.cols) roi.x = gray.cols - box;
+			if(roi.y + box > gray.rows) roi.y = gray.rows - box;
+
+			Mat sobel;
+			Sobel(gray(roi), sobel, -1, 2, 2, 3, 5);
+
+			int rows = sobel.rows;
+			int cols = sobel.cols;
+
+			int x = 0, y = 0;
+			int max = sobel.data[0];
+
+			for(int i = 0; i < rows; i++)
+			{
+				for(int j = 0; j < cols; j++)
+				{
+					int value = sobel.data[rows * i + j];
+					if(value > max)
+					{
+						x = j;
+						y = i;
+						max = value;
+					}
+				}
+			}
+
+			Mat debug = gray(roi).clone();
+			circle(debug, Point(box / 2, box / 2), 1, Scalar(0, 0, 255), -1);
+			circle(debug, Point(x, y), 1, Scalar(0, 255, 0), -1);
+			imshow("Corner", debug);
+			imshow("Sobel", sobel);
+
+			return Point2f(corner.x + x - box / 2 , corner.y + y - box / 2);
+		}
+
+		/**
 		 * Process image to identify aruco markers.
 		 * Applies pre-processing over the frame and get list of quads in the frame.
 		 * @param frame Frame to be processed.
@@ -35,39 +83,36 @@ class ArucoDetector
 		{
 			//Create a grayscale image
 			Mat gray;
-
 			cvtColor(frame, gray, COLOR_BGR2GRAY);
+			//imshow("Gray", gray);
 
 			//Adaptive threshold
-			adaptiveThreshold(gray, gray, 255, THRESH_BINARY, ADAPTIVE_THRESH_MEAN_C, thresholdBlockSize, 0.0);
-
-			//imshow("Adaptive", gray);
+			Mat thresh;
+			adaptiveThreshold(gray, thresh, 255, THRESH_BINARY, ADAPTIVE_THRESH_MEAN_C, thresholdBlockSize, 0.0);
+			//imshow("Adaptive", thresh);
 
 			//Get quads
-			vector<Quadrilateral> quads = SquareFinder::findSquares(gray, limitCosine, minArea);
-			
+			vector<Quadrilateral> quads = SquareFinder::findSquares(thresh, limitCosine, minArea);
+
 			//List of markers
 			vector<ArucoMarker> markers = vector<ArucoMarker>();
 
 			//Transform quads and filter invalid markers
 			for(unsigned int i = 0; i < quads.size(); i++)
 			{
+
 				Mat board = deformQuad(frame, Point2i(49, 49), quads[i].points);
 				Mat binary = processArucoImage(board);
-
-				//imshow("Board", board);
 
 				//Process aruco image and get data
 				ArucoMarker marker = readArucoData(binary);
 				marker.projected = quads[i].points;
 
+				//Check if marker is valid
 				if(marker.validate())
 				{
-					//Check if marker exists on the list of markers
-					if(true)
-					{
-						markers.push_back(marker);
-					}
+					markers.push_back(marker);
+					//imshow("Board", board);
 				}
 
 				//imshow("Binary", binary);

@@ -16,15 +16,16 @@ class SquareFinder
 		 * Detect quads in grayscale image.
 		 * @param gray Grayscale image.
 		 * @param limitCosine Limit value for cosine in the quad corners, by default its 0.6.
+		 * @param maxError Max error percentage relative to the square perimeter.
 		 * @returns sequence of squares detected on the image the sequence is stored in the specified memory storage
 		 */
-		static vector<Quadrilateral> findSquares(Mat gray, float limitCosine = 0.6, int minArea = 200)
+		static vector<Quadrilateral> findSquares(Mat gray, double limitCosine = 0.6, int minArea = 200, double maxError = 0.025)
 		{
 			//Quads found
 			vector<Quadrilateral> squares = vector<Quadrilateral>();
 
 			//Contours
-			vector<vector<Point> > contours;
+			vector<vector<Point>> contours;
 
 			//Find contours and store them all as a list
 			findContours(gray, contours, RETR_LIST, CHAIN_APPROX_SIMPLE);
@@ -33,7 +34,7 @@ class SquareFinder
 			for(unsigned int i = 0; i < contours.size(); i++)
 			{
 				//Approximate contour with accuracy proportional to the contour perimeter
-				approxPolyDP(Mat(contours[i]), approx, arcLength(Mat(contours[i]), true) * 0.02, true);
+				approxPolyDP(Mat(contours[i]), approx, arcLength(Mat(contours[i]), true) * maxError, true);
 
 				//Square contours should have 4 vertices after approximation relatively large area (to filter out noisy contours)and be convex.
 				if(approx.size() == 4 && fabs(contourArea(Mat(approx))) > minArea && isContourConvex(Mat(approx)))
