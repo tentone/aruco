@@ -44,7 +44,7 @@ class ArucoDetector
 			adaptiveThreshold(gray, thresh, 255, THRESH_BINARY, ADAPTIVE_THRESH_MEAN_C, thresholdBlockSize, 0.0);
 
 			#if DEBUG == true
-				imshow("Adaptive", thresh);
+				//imshow("Adaptive", thresh);
 			#endif
 
 			//Get quads
@@ -66,7 +66,8 @@ class ArucoDetector
 
 				//Check if marker is valid
 				if(marker.validate())
-				{
+				{					
+					//Show board
 					#if DEBUG == true
 						imshow("Board", board);
 					#endif

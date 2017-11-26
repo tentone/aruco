@@ -13,7 +13,7 @@ class CornerRefinement
 		 * @param gray Grayscale image.
 		 * @param box Box size to refine corner.
 		 */
-		static Point2f refineCornerSobel(Point corner, Mat gray, int box)
+		static Point2f refineCornerSobel(Mat gray, Point corner, int box = 10)
 		{
 			Rect roi = getROI(gray, corner, box);
 
@@ -56,7 +56,7 @@ class CornerRefinement
 		 * @param gray Grayscale image.
 		 * @param box Box size to refine corner.
 		 */
-		static Point2f refineCornerHarris(Point corner, Mat frame, int box = 10)
+		static Point2f refineCornerHarris(Mat frame, Point corner, int box = 10)
 		{
 			Rect roi = getROI(frame, corner, box);
 			Mat dst;
@@ -70,20 +70,31 @@ class CornerRefinement
 			cornerHarris(gray, dst, 2, 3, 0.02);
 			normalize(dst, dst, 0, 255, NORM_MINMAX);
 
+			int x = corner.x, y = corner.y;
+			int min = box;
+
 			for(int j = 0; j < dst.rows ; j++)
 			{
 				for(int i = 0; i < dst.cols; i++)
 				{
 					if(dst.at<float>(j,i) > thresh)
 					{
+						int distance = sqrt(pow(j - box / 2, 2) + pow(i - box / 2, 2));
+						if(distance < min)
+						{
+							x = j;
+							y = i;
+						}
+						
 						area.at<Vec3b>(j, i) = Vec3b(0, 255, 0);
 					}
 				}
 			}
-			area.at<Vec3b>(roi.width / 2, roi.height / 2) = Vec3b(0, 0, 255);
+
+			area.at<Vec3b>(box / 2, box / 2) = Vec3b(0, 0, 255);
 			imshow("Harris", area);
 
-			return Point2f(corner.x, corner.y);
+			return Point2f(corner.x + x - box / 2 , corner.y + y - box / 2);
 		}
 
 		/**
