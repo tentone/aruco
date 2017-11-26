@@ -35,7 +35,7 @@ class SquareFinder
 				//Approximate contour with accuracy proportional to the contour perimeter
 				approxPolyDP(Mat(contours[i]), approx, arcLength(Mat(contours[i]), true) * maxError, true);
 
-				//Square contours should have 4 vertices after approximation relatively large area (to filter out noisy contours)and be convex.
+				//Square contours have 4 vertices after approximation relatively large area (to filter out noisy contours)and be convex.
 				if(approx.size() == 4 && fabs(contourArea(Mat(approx))) > minArea && isContourConvex(Mat(approx)))
 				{
 					float maxCosine = 0;
@@ -47,17 +47,17 @@ class SquareFinder
 						maxCosine = MAX(maxCosine, cosine);
 					}
 
-					//Check if all angle corner close to 90 (more than 60)
+					//Check if all angle corner close to 90 (more than the max cosine)
 					if(maxCosine < limitCosine)
 					{
 						Quadrilateral quad = Quadrilateral();
-						int j = 0;
-						while(!approx.empty() && j < 4)
+						
+						for(int j = 0; !approx.empty() && j < 4; j++)
 						{
 							quad.points[j] = approx.back();
 							approx.pop_back();
-							j++;
 						}
+
 						squares.push_back(quad);
 					}
 				}

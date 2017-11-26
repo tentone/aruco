@@ -70,6 +70,7 @@ class ArucoDetector
 					#if DEBUG == true
 						imshow("Board", board);
 					#endif
+
 					markers.push_back(marker);
 				}
 			}
