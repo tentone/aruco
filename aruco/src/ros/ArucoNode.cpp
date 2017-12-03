@@ -464,9 +464,8 @@ int main(int argc, char **argv)
 {
 	ros::init(argc, argv, "aruco");
 
-	//Private and global node instances
+	//ROS node instance
 	ros::NodeHandle node("aruco");
-	ros::NodeHandle global;
 	
 	//Parameters
 	node.param<bool>("debug", debug, false);
@@ -570,17 +569,17 @@ int main(int argc, char **argv)
 	node.param<string>("topic_pose", topic_pose, "/pose");
 
 	//Advertise topics
-	pub_visible = global.advertise<std_msgs::Bool>(node.getNamespace() + topic_visible, 10);
-	pub_position = global.advertise<geometry_msgs::Point>(node.getNamespace() + topic_position, 10);
-	pub_rotation = global.advertise<geometry_msgs::Point>(node.getNamespace() + topic_rotation, 10);
-	pub_pose = global.advertise<geometry_msgs::PoseStamped>(node.getNamespace() + topic_pose, 10);
+	pub_visible = node.advertise<std_msgs::Bool>(node.getNamespace() + topic_visible, 10);
+	pub_position = node.advertise<geometry_msgs::Point>(node.getNamespace() + topic_position, 10);
+	pub_rotation = node.advertise<geometry_msgs::Point>(node.getNamespace() + topic_rotation, 10);
+	pub_pose = node.advertise<geometry_msgs::PoseStamped>(node.getNamespace() + topic_pose, 10);
 
 	//Subscribe topics
-	image_transport::ImageTransport it(global);
+	image_transport::ImageTransport it(node);
 	image_transport::Subscriber sub_camera = it.subscribe(topic_camera, 1, onFrame);
-	ros::Subscriber sub_camera_info = global.subscribe(topic_camera_info, 1, onCameraInfo);
-	ros::Subscriber sub_marker_register = global.subscribe(topic_marker_register, 1, onMarkerRegister);
-	ros::Subscriber sub_marker_remove = global.subscribe(topic_marker_remove, 1, onMarkerRemove);
+	ros::Subscriber sub_camera_info = node.subscribe(topic_camera_info, 1, onCameraInfo);
+	ros::Subscriber sub_marker_register = node.subscribe(topic_marker_register, 1, onMarkerRegister);
+	ros::Subscriber sub_marker_remove = node.subscribe(topic_marker_remove, 1, onMarkerRemove);
 
 	ros::spin();
 
