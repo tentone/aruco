@@ -33,7 +33,7 @@ class ArucoDetector
 		 * @param frame Frame to be processed.
 		 * @param limitCosine Higher values allow detection of more distorted markers but performance is slower
 		 */
-		static vector<ArucoMarker> getMarkers(Mat frame, float limitCosine = 0.7, int thresholdBlockSize = 7, int minArea = 200)
+		static vector<ArucoMarker> getMarkers(Mat frame, float limitCosine = 0.7, int thresholdBlockSize = 7, int minArea = 100, double maxError = 0.025)
 		{
 			//Create a grayscale image
 			Mat gray;
@@ -43,12 +43,18 @@ class ArucoDetector
 			Mat thresh;
 			adaptiveThreshold(gray, thresh, 255, THRESH_BINARY, ADAPTIVE_THRESH_MEAN_C, thresholdBlockSize, 0.0);
 
-			#if DEBUG == true
-				//imshow("Adaptive", thresh);
+			#if DEBUG
+				imshow("Adaptive", thresh);
 			#endif
 
 			//Get quads
-			vector<Quadrilateral> quads = SquareFinder::findSquares(thresh, limitCosine, minArea);
+			vector<Quadrilateral> quads = SquareFinder::findSquares(thresh, limitCosine, minArea, maxError);
+
+			#if DEBUG
+				Mat quad = frame.clone();
+				SquareFinder::drawQuads(quad, quads);
+				imshow("Quads", quad);
+			#endif
 
 			//List of markers
 			vector<ArucoMarker> markers = vector<ArucoMarker>();
@@ -68,7 +74,7 @@ class ArucoDetector
 				if(marker.validate())
 				{					
 					//Show board
-					#if DEBUG == true
+					#if DEBUG
 						imshow("Board", board);
 					#endif
 

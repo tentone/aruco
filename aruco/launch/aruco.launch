@@ -1,0 +1,19 @@
+<launch> 
+	<node pkg="aruco" type="aruco" name="aruco"> 
+		<!--Detector-->
+		<param name="debug" value="false"/>
+		<param name="cosine_limit" value="0.7"/>
+		<param name="theshold_block_size_min" value="3"/>
+		<param name="theshold_block_size_max" value="21"/>
+		<param name="max_error_quad" value="0.035"/>
+		<param name="min_area" value="100"/>
+
+		<!--Markers SIZE_CM POS_XYZ ROT_XYZ-->
+		<param name="marker321" value="0.2_0_0_0_0_0_0"/>
+		<param name="marker123" value="0.2_0_0_0_0_0_0"/>
+		
+		<!--Camera-->
+		<param name="topic_camera"          value="/camera/rgb"/> 
+		<param name="topic_camera_info"    value="/camera/info"/>
+	</node>
+</launch>

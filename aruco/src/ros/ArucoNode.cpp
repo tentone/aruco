@@ -99,6 +99,12 @@ bool debug;
 float cosine_limit;
 
 /**
+ * Maximum error to be used by geometry poly aproximation method in the quad detection phase.
+ * By default 0.035 is used.
+ */
+float max_error_quad;
+
+/**
  * Adaptive theshold pre processing block size.
  */
 int theshold_block_size;
@@ -108,7 +114,6 @@ int theshold_block_size;
  * By default 5 is used.
  */
 int theshold_block_size_min;
-
 
 /**
  * Maximum threshold block size.
@@ -147,7 +152,7 @@ void onFrame(const sensor_msgs::ImageConstPtr& msg)
 		Mat frame = cv_bridge::toCvShare(msg, "bgr8")->image;
 
 		//Process image and get markers
-		vector<ArucoMarker> markers = ArucoDetector::getMarkers(frame, cosine_limit, theshold_block_size, min_area);
+		vector<ArucoMarker> markers = ArucoDetector::getMarkers(frame, cosine_limit, theshold_block_size, min_area, max_error_quad);
 
 		//Visible
 		vector<ArucoMarker> found;
@@ -286,14 +291,14 @@ void onFrame(const sensor_msgs::ImageConstPtr& msg)
 			{
 				ArucoDetector::drawOrigin(frame, found, calibration, distortion, 0.1);
 				
-				drawText(frame, "Position: " + to_string(message_position.x) + ", " + to_string(message_position.y) + ", " + to_string(message_position.z), Point2f(10, 160));
-				drawText(frame, "Rotation: " + to_string(message_rotation.x) + ", " + to_string(message_rotation.y) + ", " + to_string(message_rotation.z), Point2f(10, 180));
+				drawText(frame, "Position: " + to_string(message_position.x) + ", " + to_string(message_position.y) + ", " + to_string(message_position.z), Point2f(10, 180));
+				drawText(frame, "Rotation: " + to_string(message_rotation.x) + ", " + to_string(message_rotation.y) + ", " + to_string(message_rotation.z), Point2f(10, 200));
 			}
 		}
 		else if(debug)
 		{
-			drawText(frame, "Position: unknown", Point2f(10, 160));
-			drawText(frame, "Rotation: unknown", Point2f(10, 180));
+			drawText(frame, "Position: unknown", Point2f(10, 180));
+			drawText(frame, "Rotation: unknown", Point2f(10, 200));
 		}
 
 		//Publish visible
@@ -309,9 +314,10 @@ void onFrame(const sensor_msgs::ImageConstPtr& msg)
 			drawText(frame, "Cosine Limit (A-Q): " + to_string(cosine_limit), Point2f(10, 60));
 			drawText(frame, "Threshold Block (W-S): " + to_string(theshold_block_size), Point2f(10, 80));
 			drawText(frame, "Min Area (E-D): " + to_string(min_area), Point2f(10, 100));
-			drawText(frame, "Visible: " + to_string(message_visible.data), Point2f(10, 120));
-			drawText(frame, "Calibrated: " + to_string(calibrated), Point2f(10, 140));
-			
+			drawText(frame, "MaxError PolyDP (R-F): " + to_string(max_error_quad), Point2f(10, 120));
+			drawText(frame, "Visible: " + to_string(message_visible.data), Point2f(10, 140));
+			drawText(frame, "Calibrated: " + to_string(calibrated), Point2f(10, 160));
+
 			imshow("Aruco", frame);
 
 			char key = (char) waitKey(1);
@@ -332,6 +338,15 @@ void onFrame(const sensor_msgs::ImageConstPtr& msg)
 			else if(key == 's' && theshold_block_size > 3)
 			{
 				theshold_block_size -= 2;
+			}
+
+			if(key == 'r')
+			{
+				max_error_quad += 0.005;
+			}
+			else if(key == 'f')
+			{
+				max_error_quad -= 0.005;
 			}
 
 			if(key == 'e')
@@ -470,11 +485,12 @@ int main(int argc, char **argv)
 	//Parameters
 	node.param<bool>("debug", debug, false);
 	node.param<bool>("use_opencv_coords", use_opencv_coords, false);
-	node.param<float>("cosine_limit", cosine_limit, 0.8);
+	node.param<float>("cosine_limit", cosine_limit, 0.7);
 	node.param<int>("theshold_block_size_min", theshold_block_size_min, 3);
 	node.param<int>("theshold_block_size_max", theshold_block_size_max, 21);
+	node.param<float>("max_error_quad", max_error_quad, 0.035); 
 	node.param<int>("min_area", min_area, 100);
-	node.param<bool>("calibrated", calibrated, true);
+	node.param<bool>("calibrated", calibrated, false);
 
 	//Initial threshold block size
 	theshold_block_size = (theshold_block_size_min + theshold_block_size_max) / 2;
@@ -585,4 +601,3 @@ int main(int argc, char **argv)
 
 	return 0;
 }
-

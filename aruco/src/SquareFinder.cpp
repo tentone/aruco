@@ -18,7 +18,7 @@ class SquareFinder
 		 * @param maxError Max error percentage relative to the square perimeter.
 		 * @returns sequence of squares detected on the image the sequence is stored in the specified memory storage
 		 */
-		static vector<Quadrilateral> findSquares(Mat gray, double limitCosine = 0.6, int minArea = 200, double maxError = 0.025)
+		static vector<Quadrilateral> findSquares(Mat gray, double limitCosine = 0.6, int minArea = 100, double maxError = 0.025)
 		{
 			//Quads found
 			vector<Quadrilateral> squares = vector<Quadrilateral>();
@@ -64,6 +64,23 @@ class SquareFinder
 			}
 
 			return squares;
+		}
+
+		/**
+		 * Draw quads into the matrix.
+		 * 
+		 * @param mat Mat to draw quads.
+		 * @param quads Vector of quadrilaterals to draw.
+		 */
+		static void drawQuads(Mat mat, vector<Quadrilateral> quads)
+		{
+			for(unsigned int i = 0; i < quads.size(); i++)
+			{
+				for(unsigned int j = 0; j < 4; j++)
+				{
+					line(mat, quads[i].points[j], quads[i].points[(j + 1) % 4], Scalar(255, 0, 255), 2);
+				}
+			}
 		}
 
 		/**
