@@ -5,16 +5,16 @@
  - Detection is not affected by lighting conditions.
 	- Can be used for low light marker traking.
 
-<img src="https://raw.githubusercontent.com/tentone/aruco/master/images/1.png"><img src="https://raw.githubusercontent.com/tentone/aruco/master/images/2.png"><img src="https://raw.githubusercontent.com/tentone/aruco/master/images/3.png">
+<img src="https://raw.githubusercontent.com/tentone/aruco/master/images/1.png" width="250"><img src="https://raw.githubusercontent.com/tentone/aruco/master/images/2.png" width="250"><img src="https://raw.githubusercontent.com/tentone/aruco/master/images/3.png" width="250">
 
 ### Algorithm
 The detection algorithm was implemented using the OpenCV library, since it pro-vides a large set of image processing algorithms. Figure 3 shows the steps applied to detect and identify markers.
 
-<img src="https://raw.githubusercontent.com/tentone/aruco/master/images/graph.png" width="350">
+<img src="https://raw.githubusercontent.com/tentone/aruco/master/images/graph.png" width="500">
 
 The algorithm starts by applying adaptive threshold [4] to the image, this algo-rithm consists in calculating for each pixel a threshold value using the histogram of its neighborhood. It is of particular interest for situations with multiple lighting condi-tions. Figure 4 shows the results after applying adaptive thresholding.
 
-<img src="https://raw.githubusercontent.com/tentone/aruco/master/images/adaptive.png" width="350">
+<img src="https://raw.githubusercontent.com/tentone/aruco/master/images/adaptive.png" width="300">
 
 To determine the threshold block (neighborhood size), one block size is tested on each frame, the block size chosen is the average size from all block sizes were the maximum number of markers were found, the block size is retested when there are no markers visible.
 After threshold is applied to the image, we perform square detection contours are detected using a border-following algorithm [5], followed by the Douglas-Peucker contour simplification algorithm [6].
@@ -22,11 +22,11 @@ Based on the detected contours, the Quadrilateral Sum Conjecture is used as a cr
 To filter noise a third criterion was added: all contours composing a geometry with an area bellow a defined threshold will be discarded.
 These three criteria allow to properly filter squares even under heavy distortion from the contour list. Figure 5 represents the obtained result for a maximum sum of cosine of 0.25 and a minimum area of 100px.
 
-<img src="https://raw.githubusercontent.com/tentone/aruco/master/images/square.jpg" width="350">
+<img src="https://raw.githubusercontent.com/tentone/aruco/master/images/square.jpg" width="300">
 
 Perspective distortion is corrected in the detected squares, then they are resampled into a 7x7 matrix using linear interpolation, threshold is applied using the Otsu’s Bina-rization algorithm [7], at this point we obtain a matrix with the marker data in it. Fig-ure 6 represents the matrix obtained after the binarization process.
 
-<img src="https://raw.githubusercontent.com/tentone/aruco/master/images/perspective.png" width="250">
+<img src="https://raw.githubusercontent.com/tentone/aruco/master/images/perspective.png" width="200">
 
 At this stage, the marker data is validated as aruco using the signature matrix. Markers might be detected in any orientation. The algorithm tests the data with dif-ferent rotations (90º, 180º, 270º), if the marker is not recognized for any rotation it is then discarded.
 For pose estimation the method solvePnp from OpenCV was used, in iterative mode using Levenberg-Marquardt optimization [8].
@@ -39,11 +39,11 @@ We created a testing environment to compare the developed solution with the ones
 A measuring tape with a millimeter scale was used to measure the distance be-tween the camera and the markers. An image was taken for each distance tested and the markers were moved 30cm each time until none of the algorithms was able to detect the marker. Figure 7 represents some samples of the testing images used during the exper-iments.
 To measure the tolerance of the detector to perspective distortion a second test-ing environment was created. A marker was placed on a box and the camera was positioned 2.0 meters away. The marker was rotated in steps of 10º from 0º to 80º. Table 2 presents the results obtained for marker rotation showing that the proposed method performed better than the other two algorithms used for comparison, obtain-ing lower error.
 
-<img src="https://raw.githubusercontent.com/tentone/aruco/master/images/results_angle.png" width="400">
+<img src="https://raw.githubusercontent.com/tentone/aruco/master/images/results_angle.png" width="500">
 
 Camera calibration was performed using a chessboard pattern and the values ob-tained were stored to be used for the tests. Figure 8 presents the results obtained. It is possible to observe an improvement in the maximum detection distance when using our algorithm.
 
-<img src="https://raw.githubusercontent.com/tentone/aruco/master/images/results_distance.png" width="400">
+<img src="https://raw.githubusercontent.com/tentone/aruco/master/images/results_distance.png" width="500">
 
 
 ### Documentation
