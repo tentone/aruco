@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <package>
 	<name>aruco</name>
-	<version>1.0.0</version>
+	<version>1.1.0</version>
 	<description>The aruco package can be used to detect, track and calculate pose from aruco markers.</description>
-	<maintainer email="tentone@outlook.pt">tentone</maintainer>
+	<maintainer email="tentone@outlook.com">tentone</maintainer>
 	<license>MIT</license>
 
 	<build_depend>message_generation</build_depend>
