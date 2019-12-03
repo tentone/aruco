@@ -16,6 +16,7 @@
 #include "geometry_msgs/Point.h"
 #include "geometry_msgs/PoseStamped.h"
 #include "sensor_msgs/image_encodings.h"
+#include "nav_msgs/Odometry.h"
 
 #include "image_transport/image_transport.h"
 #include "cv_bridge/cv_bridge.h"
@@ -47,25 +48,36 @@ Mat distortion;
 vector<ArucoMarkerInfo> known = vector<ArucoMarkerInfo>();
 
 /**
- * ROS node visibility publisher.
+ * Node visibility publisher.
  * Publishes true when a known marker is visible, publishes false otherwise.
  */
 ros::Publisher pub_visible;
 
 /**
- * ROS node position publisher.
+ * Node position publisher.
  */
 ros::Publisher pub_position;
 
 /**
- * ROS node rotation publisher.
+ * Node rotation publisher.
  */
 ros::Publisher pub_rotation;
 
 /**
- * ROS node pose publisher.
+ * Node pose publisher.
  */
 ros::Publisher pub_pose;
+
+/**
+ * Node odometry publisher.
+ * Publishes the odometry of the tf_frame indicated using the pose calculated from marker.
+ */
+ros::Publisher pub_odom;
+
+/**
+ * Name of the transform tf name to indicate on published topics.
+ */
+string tf_frame_id;
 
 /**
  * Pose publisher sequence counter.
@@ -148,7 +160,6 @@ void onFrame(const sensor_msgs::ImageConstPtr& msg)
 {
 	try
 	{
-		
 		Mat frame = cv_bridge::toCvShare(msg, "bgr8")->image;
 
 		//Process image and get markers
@@ -221,7 +232,7 @@ void onFrame(const sensor_msgs::ImageConstPtr& msg)
 			//Publish position and rotation
 			geometry_msgs::Point message_position, message_rotation;
 
-			//Opencv coordinates
+			//OpenCV coordinates
 			if(use_opencv_coords)
 			{
 				message_position.x = camera_position.at<double>(0, 0);
@@ -251,7 +262,7 @@ void onFrame(const sensor_msgs::ImageConstPtr& msg)
 			geometry_msgs::PoseStamped message_pose;
 
 			//Header
-			message_pose.header.frame_id = "aruco";
+			message_pose.header.frame_id = tf_frame_id;
 			message_pose.header.seq = pub_pose_seq++;
 			message_pose.header.stamp = ros::Time::now();
 
@@ -267,7 +278,6 @@ void onFrame(const sensor_msgs::ImageConstPtr& msg)
 
 			//Module of angular velocity
 			double angle = sqrt(x*x + y*y + z*z);
-
 			if(angle > 0.0)
 			{
 				message_pose.pose.orientation.x = x * sin(angle/2.0)/angle;
@@ -285,6 +295,12 @@ void onFrame(const sensor_msgs::ImageConstPtr& msg)
 			}
 			
 			pub_pose.publish(message_pose);
+
+            nav_msgs::Odometry message_odometry;
+            message_odometry.header.frame_id = tf_frame_id;
+            message_odometry.header.stamp = ros::Time::now();
+            message_odometry.pose.pose = message_pose.pose;
+            pub_odom.publish(message_odometry);
 
 			//Debug
 			if(debug)
@@ -570,6 +586,9 @@ int main(int argc, char **argv)
 		}
 	}
 
+    // TF frame
+    node.param<string>("tf_frame_id", tf_frame_id, "robot");
+
 	//Subscribed topic names
 	string topic_camera, topic_camera_info, topic_marker_register, topic_marker_remove;
 	node.param<string>("topic_camera", topic_camera, "/rgb/image");
@@ -578,17 +597,19 @@ int main(int argc, char **argv)
 	node.param<string>("topic_marker_remove", topic_marker_register, "/marker_remove");
 
 	//Publish topic names
-	string topic_visible, topic_position, topic_rotation, topic_pose;
+	string topic_visible, topic_position, topic_rotation, topic_pose, topic_odom;
 	node.param<string>("topic_visible", topic_visible, "/visible");
 	node.param<string>("topic_position", topic_position, "/position");
 	node.param<string>("topic_rotation", topic_rotation, "/rotation");
 	node.param<string>("topic_pose", topic_pose, "/pose");
+    node.param<string>("topic_odom", topic_odom, "/odom");
 
 	//Advertise topics
 	pub_visible = node.advertise<std_msgs::Bool>(node.getNamespace() + topic_visible, 10);
 	pub_position = node.advertise<geometry_msgs::Point>(node.getNamespace() + topic_position, 10);
 	pub_rotation = node.advertise<geometry_msgs::Point>(node.getNamespace() + topic_rotation, 10);
 	pub_pose = node.advertise<geometry_msgs::PoseStamped>(node.getNamespace() + topic_pose, 10);
+    pub_odom = node.advertise<nav_msgs::Odometry>(node.getNamespace() + topic_odom, 10);
 
 	//Subscribe topics
 	image_transport::ImageTransport it(node);

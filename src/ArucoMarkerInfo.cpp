@@ -122,7 +122,7 @@ class ArucoMarkerInfo
 		}
 
 		/**
-		 * Printo info of this marker to the stdout.
+		 * Print info about this marker to the stdout.
 		 */
 		void print()
 		{
