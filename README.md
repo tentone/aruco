@@ -20,9 +20,7 @@ We use the original aruco dictionary, that uses bits from the marker 2nd and 4th
 
 By analyzing the signature matrix, it is possibly to verify that it is not enough to guarantee that there is only one possible rotation for each marker in the we can see the marker 1023 that is horizontally symmetric.
 
-<img src="https://raw.githubusercontent.com/tentone/aruco/master/images/1023.png" width="300">
-
-
+<img src="https://raw.githubusercontent.com/tentone/aruco/master/images/1023.png" width="200">
 
 ### Algorithm
 
